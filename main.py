@@ -119,7 +119,7 @@ def redeem_code(code_list):
             try:
                 driver.find_element(By.XPATH, "//input[@value='Redeem for PSN']").click(), sleep(2)
 
-                banner_message = driver.find_element(By.CLASS_NAME, 'alert notice').text
+                banner_message = driver.find_element(By.CLASS_NAME, 'alert').text
                 if banner_message != 'This SHiFT code has already been redeemed':
                     new_code = Codes(id=len(Codes.query.all()) + 1, date=today_date, code=key['code'],
                                      platform="Playstation", game=game_title, reward=key['reward'],
@@ -135,7 +135,7 @@ def redeem_code(code_list):
             except NoSuchElementException:
                 driver.find_element(By.XPATH, "//input[@value='Redeem for Steam']").click(), sleep(2)
 
-                banner_message = driver.find_element(By.CLASS_NAME, 'alert notice').text
+                banner_message = driver.find_element(By.CLASS_NAME, 'alert').text
                 if banner_message != 'This SHiFT code has already been redeemed':
                     new_code = Codes(id=len(Codes.query.all()) + 1, date=today_date, code=key['code'], platform="Steam",
                                      game=game_title, reward=key['reward'],
