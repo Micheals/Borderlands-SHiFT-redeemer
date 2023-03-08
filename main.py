@@ -123,7 +123,8 @@ def create_webdriver(headless=True, sandbox=True):
 
 
 def gearbox_login(driver):
-    # logs into gearbox account
+    """Logs into user gearbox account"""
+
     user_email = driver.find_element(By.ID, "user_email")
     user_email.send_keys(os.environ.get('USER_EMAIL'))
     user_password = driver.find_element(By.ID, "user_password")
@@ -136,8 +137,7 @@ def accept_cookies(driver):
     """Accepts the cookie policy banner."""
     try:
         cookie_button = WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="cookie-banner"]/div[2]/button'))
-        )
+            EC.presence_of_element_located((By.XPATH, '//*[@id="cookie-banner"]/div[2]/button')))
         cookie_button.click()
     except TimeoutException:
         print("Error: Could not find cookie banner button within 5 seconds")
@@ -218,8 +218,7 @@ def redeem_code(driver, code, transactions, logger):
                 driver.execute_script("arguments[0].style.border='3px solid red'", all_buttons[count])
 
                 # gets platform from value attribute of element (e.g. PNS, Steam. Xbox)
-                platform = all_buttons[count].get_attribute('value').split('Redeem for ')[1].replace('Xbox Live',
-                                                                                                     'Xbox')
+                platform = all_buttons[count].get_attribute('value').split('Redeem for ')[1].replace('Xbox Live', 'Xbox')
                 logger.info(f'Redeeming for {platform}.')
                 # input('next')
 
@@ -236,8 +235,7 @@ def redeem_code(driver, code, transactions, logger):
                 # Check if the error messages appear on page
                 try:
                     # if code has already been redeemed, then move on to the next interation in all_button list
-                    banner = WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.CLASS_NAME, 'alert'))).text
+                    banner = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'alert'))).text
                     if 'code has already been redeemed' in banner:
                         logger.info(f'Code has already been redeemed for {h2_text_before_click} on {platform}')
                         if count == len(all_buttons):
@@ -250,7 +248,7 @@ def redeem_code(driver, code, transactions, logger):
                     if 'launch a SHiFT-enabled title first!' in banner:
                         critical_msg = 'To continue to redeem SHiFT codes, please launch a SHiFT-enabled title first!'
                         logger.critical(critical_msg)
-                        send_sms(error_message=critical_msg, error=True)
+                        send_sms(error_message=critical_msg)
                         exit()
 
                 except Exception as e:
@@ -271,29 +269,14 @@ def redeem_code(driver, code, transactions, logger):
             return
 
 
-# def send_sms(successful_codes_count):
-#     if successful_codes_count != 0:
-#         # sends text with number of code(s) redeemed
-#         account_sid = os.environ.get('ACCOUNT_SID')
-#         auth_token = os.environ.get('AUTH_TOKEN')
-#         client = Client(account_sid, auth_token)
-#
-#         message = client.messages \
-#             .create(
-#             body=f"Successfully redeemed {successful_codes_count} SHiFT Code(s)",
-#             from_=os.environ.get('TWILIO_NUMBER'),
-#             to=os.environ.get('NUMBER_1')
-#         )
-
-
-def send_sms(redeemed_count=None, error=None, error_message=None):
+def send_sms(redeemed_count=None, error_message=None):
     account_sid = os.environ.get('ACCOUNT_SID')
     auth_token = os.environ.get('AUTH_TOKEN')
     client = Client(account_sid, auth_token)
 
-    if error:
+    if error_message:
         message_body = error_message
-    elif redeemed_count > 0:
+    elif redeemed_count is not None and redeemed_count > 0:
         message_body = f"Successfully redeemed {redeemed_count} SHiFT Code(s)"
     else:
         return
@@ -343,9 +326,9 @@ def main():
         redeem_code(driver, key['code'], transactions, logger)
         successful_redemption_count += 1
 
+    # sends txt message
     send_sms(redeemed_count=successful_redemption_count)
 
 
 if __name__ == '__main__':
     main()
-
