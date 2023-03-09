@@ -119,7 +119,7 @@ def create_webdriver(headless=True, sandbox=True):
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--no-sandbox')
     # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-    driver = webdriver.Chrome(service=Service(os.environ.get("CHROMEDRIVER_PATH")), options=chrome_options)
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=chrome_options)
     return driver
 
 
@@ -309,7 +309,7 @@ def main():
     new_codes = check_table_for_code(shift_codes, transactions)
 
     # Create a webdriver instance and navigate to the SHiFT rewards page
-    driver = create_webdriver(headless=False)
+    driver = create_webdriver(headless=True)
     driver.get("https://shift.gearboxsoftware.com/rewards")
 
     # Log into the user's gearbox account
